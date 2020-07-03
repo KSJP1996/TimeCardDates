@@ -7,6 +7,7 @@ import calendar as basic_calendar
 from datetime import timedelta
 from ics import Calendar, Event
 from pytz import UTC #Timezone
+import pytz
 
 def currentDay():
     ''' Gets the current year
@@ -17,7 +18,7 @@ def currentDay():
 def generateDatetime(edate, hour, minute, second):
     ''' Converts all of the seperate dates to single string
     '''
-    event = datetime.datetime(edate.year, edate.month, edate.day, hour, minute, second, tzinfo=UTC)
+    event = datetime.datetime(edate.year, edate.month, edate.day, hour, minute, second)
     return event
 
 def generateEvent(cal, edate):
@@ -26,7 +27,8 @@ def generateEvent(cal, edate):
     newEvent = Event()
     newEvent.name = "Sign Time Card"
     date = generateDatetime(edate, 14, 0, 0) # create event at 2:00 PM
-    date = date + timedelta(hours=5) # ics is 5 hours off
+    date = localize(date)
+    #date = date + timedelta(hours=5) # ics is 5 hours off
     newEvent.begin = date
     newEvent.end = date + timedelta(minutes=15)
     cal.events.add(newEvent)
@@ -64,6 +66,14 @@ def cycleYear(cal, now):
         cal = generateEvent(cal, date)# write the event
         cMonth += 1 # increment month by 1
     return cal
+
+def localize(utcTime):
+    ''' localize the timezone to Centreal aka 'America/Chicago'  
+    ''' 
+    timezone = pytz.timezone("America/Chicago")
+    localizedDatetime = timezone.localize(utcTime)
+    return localizedDatetime
+
 
 def main():
     ''' Actual Code
