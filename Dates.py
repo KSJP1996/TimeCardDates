@@ -1,3 +1,4 @@
+
 import datetime
 import calendar as basic_calendar
 from datetime import timedelta
@@ -52,13 +53,13 @@ def cycleYear(cal, now):
         # check the 15
         [gy, gm, gd] = checkday(cYear, cMonth, 15)# test the 15th
         date = datetime.date(gy, gm, gd)
-        cal = GenerateEvent(cal, date) # write the event
+        cal = generateEvent(cal, date) # write the event
 
         # check the last day of the month aka ldm
         [__, lDM] = basic_calendar.monthrange(cYear, cMonth) #get last of the month
         [gy, gm, gd] = checkday(cYear, cMonth, lDM)
         date = datetime.date(gy, gm, gd)
-        cal = GenerateEvent(cal, date)# write the event
+        cal = generateEvent(cal, date)# write the event
         cMonth += 1 # increment month by 1
     return cal
 
