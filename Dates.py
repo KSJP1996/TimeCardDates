@@ -1,4 +1,7 @@
-
+''' This program will generate an ics file for days to sign time cards
+    will check if the 15 and last day of month to see if its a weekday
+    or back trace to find to a Friday
+'''
 import datetime
 import calendar as basic_calendar
 from datetime import timedelta
@@ -30,17 +33,17 @@ def generateEvent(cal, edate):
     #cal.events # make the event
     return cal
 
-def checkday(y, m, d):
+def checkday(year, month, day):
     ''' Check the current date to see what dat it is
     '''
-    check = datetime.date(y, m, d)
-    dayName = check.weekday() # monday = 0 , Sunday = 6
+    check = datetime.date(year, month, day)
+    checkDay = check.weekday() # monday = 0 , Sunday = 6
     # check if weekend
-    if dayName == 5:
-        d -= 1
-    if dayName == 6:
-        d -= 2
-    return [y, m, d]
+    if checkDay == 5:
+        day -= 1
+    if checkDay == 6:
+        day -= 2
+    return [year, month, day]
 
 def cycleYear(cal, now):
     ''' Check the 15th and last day of the month to see if it is a weekday else it will back count
@@ -48,17 +51,16 @@ def cycleYear(cal, now):
     '''
     cYear = now.year
     cMonth = now.month
-
     while cMonth < 13:
         # check the 15
-        [gy, gm, gd] = checkday(cYear, cMonth, 15)# test the 15th
-        date = datetime.date(gy, gm, gd)
+        [getYear, getMonth, getDay] = checkday(cYear, cMonth, 15)# test the 15th
+        date = datetime.date(getYear, getMonth, getDay)
         cal = generateEvent(cal, date) # write the event
 
         # check the last day of the month aka ldm
-        [__, lDM] = basic_calendar.monthrange(cYear, cMonth) #get last of the month
-        [gy, gm, gd] = checkday(cYear, cMonth, lDM)
-        date = datetime.date(gy, gm, gd)
+        [*_, lDM] = basic_calendar.monthrange(cYear, cMonth) #get last of the month
+        [getYear, getMonth, getDay] = checkday(cYear, cMonth, lDM)
+        date = datetime.date(getYear, getMonth, getDay)
         cal = generateEvent(cal, date)# write the event
         cMonth += 1 # increment month by 1
     return cal
@@ -66,7 +68,7 @@ def cycleYear(cal, now):
 def main():
     ''' Actual Code
     '''
-    [__, now] = currentDay()
+    [*_, now] = currentDay()
     cal = Calendar()
     caln = cycleYear(cal, now)
 
