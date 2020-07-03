@@ -3,10 +3,11 @@
     or back trace to find to a Friday
 '''
 import datetime
-from icalendar import Calendar, Event, Alarm
 import calendar as basic_calendar
 from datetime import timedelta
 import pytz
+from icalendar import Calendar, Event, Alarm
+
 
 def currentDay():
     ''' Gets the current year
@@ -33,7 +34,7 @@ def checkday(year, month, day):
     check = datetime.date(year, month, day)
     checkDay = check.weekday() # monday = 0 , Sunday = 6
     # check if weekend
-    if checkDay == 5 or 6 :
+    if checkDay == 5 or 6:
         checkDay = 4 # if the 15 or ldm falls on a weekend move to Friday
 
     return [year, month, day]
@@ -66,7 +67,7 @@ def generateEvent(cal, edate):
     endDate = date + timedelta(minutes=15)
 
     newEvent = Event()
-    newEvent.add('summary',"Sign Time Card")
+    newEvent.add('summary', "Sign Time Card")
     newEvent.add('dtstart', date)
     newEvent.add('dtend', endDate)
     newEvent = addAlarm(newEvent)
@@ -75,11 +76,11 @@ def generateEvent(cal, edate):
 
 def addAlarm(event):
     ''' Add in an alarm to the event
-    ''' 
+    '''
     alarm = Alarm()
     alarm.add('action', 'DISPLAY')
-    alert_time = timedelta(minutes=-int(5)) ## alert the user 5 minutes before 2:00 i.e. 1:55
-    alarm.add('trigger', alert_time)
+    alertTime = timedelta(minutes=-int(5)) ## alert the user 5 minutes before 2:00 i.e. 1:55
+    alarm.add('trigger', alertTime)
     event.add_component(alarm)
     return event
 
