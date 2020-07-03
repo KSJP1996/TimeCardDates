@@ -3,10 +3,9 @@
     or back trace to find to a Friday
 '''
 import datetime
+from icalendar import Calendar, Event, Alarm
 import calendar as basic_calendar
 from datetime import timedelta
-from ics import Calendar, Event
-from pytz import UTC #Timezone
 import pytz
 
 def currentDay():
@@ -21,19 +20,12 @@ def generateDatetime(edate, hour, minute, second):
     event = datetime.datetime(edate.year, edate.month, edate.day, hour, minute, second)
     return event
 
-def generateEvent(cal, edate):
-    ''' Generate a 10 minute long event once give an a date
+def localize(utcTime):
+    ''' localize the timezone to Centreal aka 'America/Chicago'
     '''
-    newEvent = Event()
-    newEvent.name = "Sign Time Card"
-    date = generateDatetime(edate, 14, 0, 0) # create event at 2:00 PM
-    date = localize(date)
-    #date = date + timedelta(hours=5) # ics is 5 hours off
-    newEvent.begin = date
-    newEvent.end = date + timedelta(minutes=15)
-    cal.events.add(newEvent)
-    #cal.events # make the event
-    return cal
+    timezone = pytz.timezone("America/Chicago")
+    localizedDatetime = timezone.localize(utcTime)
+    return localizedDatetime
 
 def checkday(year, month, day):
     ''' Check the current date to see what dat it is
@@ -41,10 +33,9 @@ def checkday(year, month, day):
     check = datetime.date(year, month, day)
     checkDay = check.weekday() # monday = 0 , Sunday = 6
     # check if weekend
-    if checkDay == 5:
-        day -= 1
-    if checkDay == 6:
-        day -= 2
+    if checkDay == 5 or 6 :
+        checkDay = 4 # if the 15 or ldm falls on a weekend move to Friday
+
     return [year, month, day]
 
 def cycleYear(cal, now):
@@ -67,23 +58,42 @@ def cycleYear(cal, now):
         cMonth += 1 # increment month by 1
     return cal
 
-def localize(utcTime):
-    ''' localize the timezone to Centreal aka 'America/Chicago'  
-    ''' 
-    timezone = pytz.timezone("America/Chicago")
-    localizedDatetime = timezone.localize(utcTime)
-    return localizedDatetime
+def generateEvent(cal, edate):
+    ''' Generate a 10 minute long event once give an a date
+    '''
+    date = generateDatetime(edate, 14, 0, 0) # create event at 2:00 PM
+    #date = localize(date) # locized by outlook(I think )
+    endDate = date + timedelta(minutes=15)
 
+    newEvent = Event()
+    newEvent.add('summary',"Sign Time Card")
+    newEvent.add('dtstart', date)
+    newEvent.add('dtend', endDate)
+    newEvent = addAlarm(newEvent)
+    cal.add_component(newEvent)
+    return cal
+
+def addAlarm(event):
+    ''' Add in an alarm to the event
+    ''' 
+    alarm = Alarm()
+    alarm.add('action', 'DISPLAY')
+    alert_time = timedelta(minutes=-int(5)) ## alert the user 5 minutes before 2:00 i.e. 1:55
+    alarm.add('trigger', alert_time)
+    event.add_component(alarm)
+    return event
 
 def main():
     ''' Actual Code
     '''
     [*_, now] = currentDay()
     cal = Calendar()
-    caln = cycleYear(cal, now)
+    cal = cycleYear(cal, now)
 
-    with open('TimeCard.ics', 'w') as myFile:
-        myFile.writelines(caln)
+    myFile = open('TimeCard.ics', 'wb')
+    myFile.write(cal.to_ical())
+    myFile.close()
+
     print("ics generated")
 
 if __name__ == '__main__':
