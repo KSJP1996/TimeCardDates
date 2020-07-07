@@ -34,8 +34,11 @@ def checkday(year, month, day):
     check = datetime.date(year, month, day)
     checkDay = check.weekday() # monday = 0 , Sunday = 6
     # check if weekend
-    if checkDay == 5 or 6:
-        checkDay = 4 # if the 15 or ldm falls on a weekend move to Friday
+    if checkDay == 5:
+        day -= 1
+    elif checkDay == 6:
+        day -= 2
+
 
     return [year, month, day]
 
